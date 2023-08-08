@@ -1,6 +1,25 @@
 import "./styles.css";
-import { useReducer, useState } from "react";
+import { useReducer, useState, useEffect } from "react";
 import { Button, TextField } from "@mui/material";
+import { useSelector, useDispatch } from "react-redux";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
+import userData from "./data";
+import { UserInterface } from "./interfaces/UserInterface";
+import UserCard from "./components/usercard";
+import { UserCardProps } from "./components/usercard";
+import { Grid } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import RotateLeftIcon from "@mui/icons-material/RotateLeft";
+import { UserRecordInterface } from "./interfaces/UserRecordInterface";
+import { INCREMENT, DECREMENT, RESET } from "./redux/counterActionTypes";
+import counterReducer from "./redux/counterReducer";
 
 /** Instructions
    0. Fork this codesandbox and sync it with your github 
@@ -17,7 +36,7 @@ import { Button, TextField } from "@mui/material";
    3.2. Store the removed users in a new state instance
    3.3. Using the second input, add a method to search for a user's username with the onChange event
    3.4. The removed users should also be found if the input is being used to search for a username
-   3.5. In the case where a removed user is shown during a search, there should be a "restore" button, which would insert the removed user back into the users array
+   3.5. In the casen during a se where a removed user is showarch, there should be a "restore" button, which would insert the removed user back into the users array
    4. Extend the reducer:
    4.1. Count must always be >= 0, in all cases
    4.2. Add a case to increment count with a random number, between 1 and 10
@@ -29,26 +48,128 @@ import { Button, TextField } from "@mui/material";
    5. Provide the link to your forked repo with your answers
    */
 
-function reducer(state, action) {
+/*function reducer(state = {count : 0 }, action) {
   switch (action.type) {
-    case "increment":
+    case "INCREMENT":
       return { count: state.count + 1 };
-    case "decrement":
+    case "DECREMENT":
       return { count: state.count - 1 };
+    case "RESET":
+      return { count: 0 }
     default:
       throw new Error();
   }
-}
+}*/
+
+//const dispatch = useDispatch();
+/* For new ID of users */
+const characters = "ABCDEF123456";
+
+const generateRandomId = (length: number) => {
+  let randomId = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    randomId += characters.charAt(randomIndex);
+  }
+  return randomId;
+};
 
 export default function App() {
-  const [users] = useState([]);
+  const [users, setUsers] = useState<UserRecordInterface[]>([]);
+  const [deletedUserIds, setDeletedUserIds] = useState<number[]>([]);
+  const [deletedUser, setDeletedUsers] = useState<number[]>([]);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  /* 
+   Set localusers from data.ts/userData with filter and also and assing new id to each object
+   Since this is onetime,
+  */
+
+  const [localUsers, setLocalUsers] = useState<UserRecordInterface[]>(() => {
+    // Using map() to transform the source array to the target array - also generating new ID , appeding address fields in same loop.
+    const mappedUserData = userData.map((i) => {
+      return {
+        uid: generateRandomId(6),
+        id: i.id,
+        companyname: i.company.name,
+        username: i.username,
+        address:
+          i.address.street +
+          ", " +
+          i.address.suite +
+          "," +
+          i.address.city +
+          "," +
+          i.address.zipcode,
+        age: i.age,
+      };
+    });
+
+    mappedUserData.sort((a, b) => {
+      if (a.companyname !== b.companyname) {
+        return a.companyname.localeCompare(b.companyname); // Sort by companyName
+      } else {
+        return a.age - b.age; // If companyName is the same, then sort by age
+      }
+    });
+
+    var initialLocalUsersState = mappedUserData.filter(function (u) {
+      return u.age >= 18;
+    });
+    return initialLocalUsersState;
+  });
   const [numberInput] = useState(0);
-  const [text] = useState("");
-  const [countState, dispatch] = useReducer(reducer, { count: 0 });
+  const [text, setText] = useState("");
+  const [countState, dispatch] = useReducer(counterReducer, { count: 0 });
+  /* 
+    Maintaing deltedUserIds instead of deltedUsers, as I couldnt get two state Changes in useEffect() 
+    Need to fix this.
+    Using isFlipped to rerender with new users.
+  */
+  useEffect(() => {
+    /* Filter to current text - search fields  */
+    setUsers(
+      localUsers.filter(function (u) {
+        return u.username.includes(text);
+      })
+    );
+  }, [text, isFlipped]);
+
+  function searchUser(e: any) {
+    setText(e.target.value);
+  }
+
+  function deleteUserFromLocalUsers(id: number) {
+    /** add to deletedUserIds list */
+    const currentDelList = deletedUserIds;
+    currentDelList.push(id);
+    setDeletedUserIds(currentDelList);
+    /* 
+      Change this isFlipped flag to force invoke the isEffect(), thus update UI maps - users and deletedUsers 
+      For some reason, changing deletedUserIds not taking useEffect();
+      */
+    setIsFlipped(!isFlipped);
+  }
+
+  function restoreBackUserId(id: number) {
+    /** add to deletedUserIds list */
+    var currentDelList = deletedUserIds;
+    /* Search and remove all occurance of this id from currentDelList */
+    var i = 0;
+    while (i < currentDelList.length) {
+      if (currentDelList[i] === id) {
+        currentDelList.splice(i, 1);
+      } else {
+        ++i;
+      }
+    }
+    setDeletedUserIds(currentDelList);
+    setIsFlipped(!isFlipped);
+  }
 
   return (
     <div className="App">
-      <p style={{ marginBottom: 0 }}>Count: {countState.count}</p>
+      <p style={{ marginBottom: 0 }}>Count: {/*countState.count */}</p>
       <TextField
         defaultValue={numberInput}
         type="number"
@@ -56,21 +177,96 @@ export default function App() {
       />
       <Button
         variant="contained"
-        onClick={() => dispatch({ type: "decrement" })}
+        onClick={() => dispatch({ type: "INCREMENT" })}
       >
-        -
+        <AddIcon />
       </Button>
       <Button
         variant="contained"
-        onClick={() => dispatch({ type: "increment" })}
+        onClick={() => dispatch({ type: "DECREMENT" })}
       >
-        +
+        <RemoveIcon />
+      </Button>
+      <Button variant="contained" onClick={() => dispatch({ type: "RESET" })}>
+        <RotateLeftIcon />
       </Button>
       <p style={{ marginBottom: 0, marginTop: 30 }}>Search for a user</p>
       <TextField
         defaultValue={text}
         style={{ display: "block", margin: "auto" }}
+        onChange={(e) => {
+          searchUser(e);
+        }}
       />
+
+      {/*  Results in Table 
+    <TableContainer component={Paper}>
+     <Table aria-label="User Info ">
+       <TableHead>
+         <TableRow>
+           <TableCell>U.ID</TableCell>
+           <TableCell align="right">Name</TableCell>
+           <TableCell align="right">User Name</TableCell>
+           <TableCell align="right">Name</TableCell>
+           <TableCell align="right">EMail</TableCell>
+           <TableCell align="right">Age</TableCell>
+           <TableCell align="right">Address</TableCell>
+         </TableRow>
+       </TableHead>
+       <TableBody>
+         {users.map((u) => (
+           <TableRow key={u.id}>
+             <TableCell component="th" scope="row">
+               {u.id}
+             </TableCell>
+             <TableCell align="right">{u.username}</TableCell>
+             <TableCell align="right">{u.name}</TableCell>
+             <TableCell align="right">{u.email}</TableCell>
+             <TableCell align="right">{u.age}</TableCell>
+             <TableCell align="right">{u.address.street},{u.address.suite},{u.address.city},
+                {u.address.zipcode}</TableCell>
+           </TableRow>
+         ))}
+       </TableBody>
+     </Table>
+   </TableContainer>
+         */}
+
+      <Grid container spacing={2}>
+        {users
+          .filter(function (u) {
+            return !deletedUserIds.includes(u.id);
+          })
+          .map((u, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <UserCard
+                userItem={u}
+                actionFunction={(id) => {
+                  deleteUserFromLocalUsers(id);
+                }}
+                action="DEL"
+              />
+            </Grid>
+          ))}
+      </Grid>
+
+      <Grid container spacing={2}>
+        {users
+          .filter(function (u) {
+            return deletedUserIds.includes(u.id);
+          })
+          .map((u, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <UserCard
+                userItem={u}
+                actionFunction={(id) => {
+                  restoreBackUserId(id);
+                }}
+                action="RESTORE"
+              />
+            </Grid>
+          ))}
+      </Grid>
     </div>
   );
 }
