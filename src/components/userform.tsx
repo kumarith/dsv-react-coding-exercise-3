@@ -1,19 +1,26 @@
-
-import { Card, CardContent, Typography ,CardActionArea, CardActions, Button, Container, Grid, TextField} from '@mui/material';
-import { UserInterface } from '../interfaces/UserInterface';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import {
+  Card,
+  CardContent,
+  Typography,
+  CardActionArea,
+  CardActions,
+  Button,
+  Container,
+  Grid,
+  TextField,
+} from "@mui/material";
+import { UserInterface } from "../interfaces/UserInterface";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useReducer, useState, useEffect } from "react";
 
 const [newUser, setNewUser] = useState<UserInterface>();
 
 export interface NewUserFormProps {
-    submitFunction: (userRecord:UserInterface) => void;
-  }
+  submitFunction: (userRecord: UserInterface) => void;
+}
 
-
-  
-const UserCard: React.FC<NewUserFormProps> = ({   submitFunction } ) => {
+const UserCard: React.FC<NewUserFormProps> = ({ submitFunction }) => {
   return (
     <Container maxWidth="sm">
       <Typography variant="h4" align="center" gutterBottom>
@@ -34,7 +41,7 @@ const UserCard: React.FC<NewUserFormProps> = ({   submitFunction } ) => {
               label="Name"
               fullWidth
               value={newUser?.name}
-              /* onChange={(e) => setLastName(e.target.value)} */ 
+              /* onChange={(e) => setLastName(e.target.value)} */
             />
           </Grid>
           <Grid item xs={12}>
@@ -43,16 +50,11 @@ const UserCard: React.FC<NewUserFormProps> = ({   submitFunction } ) => {
               fullWidth
               type="email"
               value={newUser?.email}
-              /* onChange={(e) => setEmail(e.target.value)} */ 
+              /* onChange={(e) => setEmail(e.target.value)} */
             />
           </Grid>
           <Grid item xs={12}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-            >
+            <Button type="submit" variant="contained" color="primary" fullWidth>
               Submit
             </Button>
           </Grid>

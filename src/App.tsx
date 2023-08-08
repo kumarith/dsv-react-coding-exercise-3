@@ -1,6 +1,6 @@
 import "./styles.css";
 import { useReducer, useState, useEffect } from "react";
-import { Button, TextField } from "@mui/material";
+import { Button, TextField, ThemeProvider, Typography } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -20,6 +20,8 @@ import RotateLeftIcon from "@mui/icons-material/RotateLeft";
 import { UserRecordInterface } from "./interfaces/UserRecordInterface";
 import { INCREMENT, DECREMENT, RESET } from "./redux/counterActionTypes";
 import counterReducer from "./redux/counterReducer";
+import FastForwardIcon from "@mui/icons-material/FastForward";
+import { createTheme, makeStyles, responsiveFontSizes } from "@mui/material/styles";
 
 /** Instructions
    0. Fork this codesandbox and sync it with your github 
@@ -38,11 +40,11 @@ import counterReducer from "./redux/counterReducer";
    3.4. The removed users should also be found if the input is being used to search for a username
    3.5. In the casen during a se where a removed user is showarch, there should be a "restore" button, which would insert the removed user back into the users array
    4. Extend the reducer:
-   4.1. Count must always be >= 0, in all cases
+   4.1. Count must always bresete >= 0, in all cases
    4.2. Add a case to increment count with a random number, between 1 and 10
    4.3. Add a case to increment to the nearest odd number, if already odd - increment to next odd
    4.4. Add a case to decrease the count by the input of the first textfield
-   4.5. Add a case to reset the count
+   4.5. Add a case to  the count
    4.6. Add buttons to said cases
    4.7. Add styling using MUI
    5. Provide the link to your forked repo with your answers
@@ -62,6 +64,7 @@ import counterReducer from "./redux/counterReducer";
 }*/
 
 //const dispatch = useDispatch();
+
 /* For new ID of users */
 const characters = "ABCDEF123456";
 
@@ -86,7 +89,7 @@ export default function App() {
   */
 
   const [localUsers, setLocalUsers] = useState<UserRecordInterface[]>(() => {
-    // Using map() to transform the source array to the target array - also generating new ID , appeding address fields in same loop.
+    /* Using map() to transform the source array to the target array - also generating new ID , appeding address fields in same loop. */
     const mappedUserData = userData.map((i) => {
       return {
         uid: generateRandomId(6),
@@ -118,19 +121,21 @@ export default function App() {
     });
     return initialLocalUsersState;
   });
-  const [numberInput] = useState(0);
+
+  const [numberInput, setNumberInput] = useState(0);
   const [text, setText] = useState("");
   const [countState, dispatch] = useReducer(counterReducer, { count: 0 });
+
   /* 
     Maintaing deltedUserIds instead of deltedUsers, as I couldnt get two state Changes in useEffect() 
     Need to fix this.
     Using isFlipped to rerender with new users.
   */
   useEffect(() => {
-    /* Filter to current text - search fields  */
+    /* Filter to current text - search fields  - comapring after lowercase for case insensitive. */
     setUsers(
       localUsers.filter(function (u) {
-        return u.username.includes(text);
+        return u.username.toLowerCase().includes(text.toLowerCase());
       })
     );
   }, [text, isFlipped]);
@@ -167,30 +172,110 @@ export default function App() {
     setIsFlipped(!isFlipped);
   }
 
+  /** To avoid NaN issue when uses presses backspace on number field  */
+  const handleNumberInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const newValue = parseInt(event.target.value);
+    // Check if the newValue is a valid number
+    if (!isNaN(newValue)) {
+      setNumberInput(newValue);
+    } else {
+      setNumberInput(0);
+    }
+  };
+
+  const theme = createTheme({
+    typography: {
+      h1: {
+        fontSize: '2.5rem',
+        fontWeight: 600,
+      },
+      h2: {
+        fontSize: '2rem',
+        fontWeight: 500,
+      },
+      h3: {
+        fontSize: '1.8rem',
+        fontWeight: 500,
+      },
+      h4: {
+        fontSize: '1.5rem',
+        fontWeight: 500,
+      },
+      h5: {
+        fontSize: '1.2rem',
+        fontWeight: 500,
+      },
+      h6: {
+        fontSize: '1rem',
+        fontWeight: 500,
+      },
+    },
+  });
+  
+
+  
+
   return (
     <div className="App">
-      <p style={{ marginBottom: 0 }}>Count: {/*countState.count */}</p>
+      <ThemeProvider theme={theme}>
+      <Paper elevation={3} style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' , }}>
+        <Typography variant="h3">Count: {countState?.count} </Typography>
+      <br/>
+
       <TextField
         defaultValue={numberInput}
         type="number"
-        style={{ display: "block" }}
+        style={{ display: "block" ,  marginBottom: '15px'}}
+        onChange={handleNumberInputChange}
       />
       <Button
         variant="contained"
         onClick={() => dispatch({ type: "INCREMENT" })}
       >
-        <AddIcon />
+        <AddIcon /> 1
       </Button>
+      <span>&nbsp;</span>
       <Button
         variant="contained"
         onClick={() => dispatch({ type: "DECREMENT" })}
       >
-        <RemoveIcon />
+        <RemoveIcon /> 1
       </Button>
+      <span>&nbsp;</span>
+      <Button
+        variant="contained"
+        onClick={() =>
+          dispatch({
+            type: "DECREMENTBYUSERINPUT",
+            payload: { userinput: numberInput },
+          })
+        }
+      >
+        <RemoveIcon /> by above input
+      </Button>
+      <span>&nbsp;</span>
+      <Button
+        variant="contained"
+        onClick={() => dispatch({ type: "INCREMENTBYRANDOMNO" })}
+      >
+        <AddIcon /> Random
+      </Button>
+      <span>&nbsp;</span>
+      <Button
+        variant="contained"
+        onClick={() => dispatch({ type: "MOVE_TO_NEXT_ODD_NO" })}
+      >
+        <FastForwardIcon /> Next Odd No
+      </Button>
+      <span>&nbsp;</span>
       <Button variant="contained" onClick={() => dispatch({ type: "RESET" })}>
         <RotateLeftIcon />
       </Button>
-      <p style={{ marginBottom: 0, marginTop: 30 }}>Search for a user</p>
+      </Paper>
+      <Paper elevation={3} style={{marginBottom: '25px', padding: '20px', maxWidth: '80%', margin: '0 auto' , }}>
+      <p style={{ marginBottom: 10, marginTop: 30 }}>Search for a user</p>
       <TextField
         defaultValue={text}
         style={{ display: "block", margin: "auto" }}
@@ -199,40 +284,7 @@ export default function App() {
         }}
       />
 
-      {/*  Results in Table 
-    <TableContainer component={Paper}>
-     <Table aria-label="User Info ">
-       <TableHead>
-         <TableRow>
-           <TableCell>U.ID</TableCell>
-           <TableCell align="right">Name</TableCell>
-           <TableCell align="right">User Name</TableCell>
-           <TableCell align="right">Name</TableCell>
-           <TableCell align="right">EMail</TableCell>
-           <TableCell align="right">Age</TableCell>
-           <TableCell align="right">Address</TableCell>
-         </TableRow>
-       </TableHead>
-       <TableBody>
-         {users.map((u) => (
-           <TableRow key={u.id}>
-             <TableCell component="th" scope="row">
-               {u.id}
-             </TableCell>
-             <TableCell align="right">{u.username}</TableCell>
-             <TableCell align="right">{u.name}</TableCell>
-             <TableCell align="right">{u.email}</TableCell>
-             <TableCell align="right">{u.age}</TableCell>
-             <TableCell align="right">{u.address.street},{u.address.suite},{u.address.city},
-                {u.address.zipcode}</TableCell>
-           </TableRow>
-         ))}
-       </TableBody>
-     </Table>
-   </TableContainer>
-         */}
-
-      <Grid container spacing={2}>
+      <Grid style={{marginBottom: '25px', marginTop: '25px' } } container spacing={2}>
         {users
           .filter(function (u) {
             return !deletedUserIds.includes(u.id);
@@ -267,6 +319,8 @@ export default function App() {
             </Grid>
           ))}
       </Grid>
+      </Paper>
+      </ThemeProvider>
     </div>
   );
 }

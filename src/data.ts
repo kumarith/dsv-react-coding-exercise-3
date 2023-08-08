@@ -1,6 +1,7 @@
-const users = [
+ const userData = [
   {
     id: 1,
+    uid: "",
     name: "Leanne Graham",
     username: "Bret",
     email: "Sincere@april.biz",
@@ -25,6 +26,7 @@ const users = [
   },
   {
     id: 2,
+    uid: "",
     name: "Ervin Howell",
     username: "Antonette",
     email: "Shanna@melissa.tv",
@@ -49,6 +51,7 @@ const users = [
   },
   {
     id: 3,
+    uid: "",
     name: "Clementine Bauch",
     username: "Antonette",
     email: "Nathan@yesenia.net",
@@ -73,6 +76,7 @@ const users = [
   },
   {
     id: 4,
+    uid: "",
     name: "Patricia Lebsack",
     username: "Karianne",
     email: "Julianne.OConner@kory.org",
@@ -97,6 +101,7 @@ const users = [
   },
   {
     id: 5,
+    uid: "",
     name: "Chelsey Dietrich",
     username: "Kamren",
     email: "Lucio_Hettinger@annie.ca",
@@ -121,6 +126,7 @@ const users = [
   },
   {
     id: 6,
+    uid: "",
     name: "Mrs. Dennis Schulist",
     username: "Leopoldo_Corkery",
     email: "Karley_Dach@jasper.info",
@@ -145,6 +151,7 @@ const users = [
   },
   {
     id: 7,
+    uid: "",
     name: "Kurtis Weissnat",
     username: "Elwyn.Skiles",
     email: "Telly.Hoeger@billy.biz",
@@ -169,6 +176,7 @@ const users = [
   },
   {
     id: 8,
+    uid: "",
     name: "Nicholas Runolfsdottir V",
     username: "Maxime_Nienow",
     email: "Sherwood@rosamond.me",
@@ -193,6 +201,7 @@ const users = [
   },
   {
     id: 9,
+    uid: "",
     name: "Glenna Reichert",
     username: "Delphine",
     email: "Chaim_McDermott@dana.io",
@@ -217,6 +226,7 @@ const users = [
   },
   {
     id: 10,
+    uid: "",
     name: "Clementina DuBuque",
     username: "Moriah.Stanton",
     email: "Rey.Padberg@karina.biz",
@@ -241,4 +251,4 @@ const users = [
   }
 ];
 
-export default users;
+export default userData;

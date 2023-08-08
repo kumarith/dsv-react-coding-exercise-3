@@ -32,43 +32,68 @@ const UserCard: React.FC<UserCardProps> = ({
   actionFunction,
   action,
 }) => {
+  const addressStyle = {
+    textAlign: "left", // Align text to the left
+    verticalAlign: "top", // Align content to the top
+  };
+
+  const cardStyles = {
+    backgroundColor: '#f5f5f5', // Set the background color to light grey
+    padding: '20px',
+  };
+
+  const cardStylesForDeleted = {
+    backgroundColor: '#ffebee', // Set the background color to light grey
+    padding: '20px',
+  };
+
+  
+
   return (
-    <Card>
-      <CardContent>
+    <Card style={action == "DEL" ? cardStyles :cardStylesForDeleted  }>
+      <CardContent     >
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} container alignItems="center">
-            <Avatar sx={{ bgcolor: grey[500], marginRight: "12px" }}>
-              <PersonIcon />
-            </Avatar>
+            <PersonIcon />
+
             <Typography variant="body1">
-              Username: {userItem.username}
+              <span>&nbsp;&nbsp;</span>
+              <b>Username:</b> {userItem.username}
             </Typography>
           </Grid>
           <Grid item xs={12} container alignItems="center">
-            <Avatar sx={{ bgcolor: grey[500], marginRight: "12px" }}>
-              <AccountCircleIcon />
-            </Avatar>
-            <Typography variant="body1">User ID: {userItem.uid}</Typography>
-          </Grid>
-          <Grid item xs={12} container alignItems="center">
-            <Avatar sx={{ bgcolor: grey[500], marginRight: "12px" }}>
-              <CakeIcon />
-            </Avatar>
-            <Typography variant="body1">Age: {userItem.age}</Typography>
-          </Grid>
-          <Grid item xs={12} container alignItems="center">
-            <Avatar sx={{ bgcolor: grey[500], marginRight: "12px" }}>
-              <BusinessIcon />
-            </Avatar>
+            <AccountCircleIcon />
+
             <Typography variant="body1">
-              Company: {userItem.companyname}
+              {" "}
+              <span>&nbsp;&nbsp;</span> <b>User ID:</b> {userItem.uid}
             </Typography>
           </Grid>
           <Grid item xs={12} container alignItems="center">
-            <Avatar sx={{ bgcolor: grey[500], marginRight: "12px" }}>
-              <LocationOnIcon />
-            </Avatar>
-            <Typography variant="body1">Address: {userItem.address}</Typography>
+            <CakeIcon />
+
+            <Typography variant="body1">
+              {" "}
+              <span>&nbsp;&nbsp;</span> <b>Age:</b> {userItem.age}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} container alignItems="center">
+            <BusinessIcon />
+
+            <Typography variant="body1">
+              <b>
+                <span>&nbsp;&nbsp;</span> Company:
+              </b>{" "}
+              {userItem.companyname}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} container alignItems="center">
+            <LocationOnIcon />
+
+            <Typography style={addressStyle} variant="body1">
+              {" "}
+              <span>&nbsp;&nbsp;</span> Address: {userItem.address}
+            </Typography>
           </Grid>
         </Grid>
       </CardContent>
